@@ -1,6 +1,6 @@
 const INPUT: &str = include_str!("inputs/day01.txt");
 
-pub fn day01() {
+pub fn run() {
     let (max, max3) = sum3_calories(INPUT);
     println!("Max: {max}\nMax 3 foods: {max3}");
 }
