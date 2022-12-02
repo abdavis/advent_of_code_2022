@@ -17,7 +17,7 @@ fn part1(input: &str) -> u32 {
             "A Z" => 3,
             "B Z" => 3 + 6,
             "C Z" => 3 + 3,
-            _ => panic!(),
+            _ => panic!("{l} is not a valid input"),
         })
         .sum()
 }
@@ -35,7 +35,7 @@ fn part2(input: &str) -> u32 {
             "A Z" => 6 + 2,
             "B Z" => 6 + 3,
             "C Z" => 6 + 1,
-            _ => panic!(),
+            _ => panic!("{l} is not a valid input"),
         })
         .sum()
 }
