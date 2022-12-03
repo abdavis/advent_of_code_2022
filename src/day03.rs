@@ -1,5 +1,4 @@
 const INPUT: &str = include_str!("inputs/day03.txt");
-use std::collections::HashSet;
 pub fn run() -> String {
     format!("Part 1: {}\n", part1(INPUT)) + &format!("Part2: {}", part2(INPUT))
 }
@@ -15,17 +14,23 @@ impl ToNum for char {
         }
     }
 }
+struct Bitmap(u64);
+impl FromIterator<char> for Bitmap {
+    fn from_iter<T: IntoIterator<Item = char>>(iter: T) -> Self {
+        let mut acc = 0;
+        for c in iter {
+            acc |= 1 << c.num();
+        }
+        Self(acc)
+    }
+}
 fn part1(input: &str) -> u32 {
     input
         .lines()
         .map(|line| {
-            let mut leftset = HashSet::new();
-            let mut rightset = HashSet::new();
-            for (lc, rc) in line.chars().take(line.len() / 2).zip(line.chars().rev()) {
-                leftset.insert(lc);
-                rightset.insert(rc);
-            }
-            leftset.intersection(&rightset).next().unwrap().num()
+            let left: Bitmap = line.chars().take(line.len() / 2).collect();
+            let right: Bitmap = line.chars().rev().take(line.len() / 2).collect();
+            (left.0 & right.0).trailing_zeros()
         })
         .sum()
 }
@@ -33,19 +38,10 @@ fn part2(input: &str) -> u32 {
     let mut sum = 0;
     let mut lines = input.lines();
     while let (Some(a), Some(b), Some(c)) = (lines.next(), lines.next(), lines.next()) {
-        sum += a
-            .chars()
-            .collect::<HashSet<_>>()
-            .intersection(
-                &b.chars()
-                    .collect::<HashSet<_>>()
-                    .intersection(&c.chars().collect())
-                    .cloned()
-                    .collect(),
-            )
-            .next()
-            .unwrap()
-            .num()
+        let a: Bitmap = a.chars().collect();
+        let b: Bitmap = b.chars().collect();
+        let c: Bitmap = c.chars().collect();
+        sum += (a.0 & b.0 & c.0).trailing_zeros()
     }
     sum
 }
