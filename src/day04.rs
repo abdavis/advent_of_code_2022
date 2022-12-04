@@ -4,18 +4,16 @@ pub fn run() -> String {
     format!("Part 1: {}\nPart 2: {}", part1(&input), part2(&input))
 }
 fn parse_input(input: &str) -> Vec<(isize, isize, isize, isize)> {
-    input
-        .lines()
-        .map(|l| {
-            let mut nums = l.split(&['-', ',']).map(|n| n.parse().unwrap());
-            (
-                nums.next().unwrap(),
-                nums.next().unwrap(),
-                nums.next().unwrap(),
-                nums.next().unwrap(),
-            )
-        })
-        .collect()
+    let mut nums = input
+        .split_terminator(&['-', ',', '\n'])
+        .map(|s| s.parse().unwrap());
+    let mut out = Vec::with_capacity(1000);
+    while let (Some(a), Some(b), Some(c), Some(d)) =
+        (nums.next(), nums.next(), nums.next(), nums.next())
+    {
+        out.push((a, b, c, d));
+    }
+    out
 }
 fn part1(input: &Vec<(isize, isize, isize, isize)>) -> usize {
     input
