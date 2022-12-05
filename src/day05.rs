@@ -10,9 +10,8 @@ fn parse_input<const NUM_STACKS: usize>(
     let mut crates = std::array::from_fn(|_| Vec::new());
     for line in crates_str.lines().rev() {
         for (n, c) in line.chars().skip(1).step_by(4).enumerate() {
-            match c {
-                c @ 'A'..='Z' => crates[n].push(c),
-                _ => (),
+            if ('A'..='Z').contains(&c) {
+                crates[n].push(c);
             }
         }
     }
