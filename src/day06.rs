@@ -6,9 +6,7 @@ fn both_parts(input: &str, length: usize) -> usize {
     input
         .as_bytes()
         .windows(length)
-        .enumerate()
-        .find(|(_, slice)| !(1..slice.len()).any(|i| slice[i..].contains(&slice[i - 1])))
+        .position(|slice| !(1..slice.len()).any(|i| slice[i..].contains(&slice[i - 1])))
         .unwrap()
-        .0
         + length
 }
