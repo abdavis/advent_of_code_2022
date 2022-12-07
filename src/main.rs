@@ -5,6 +5,7 @@ mod day03;
 mod day04;
 mod day05;
 mod day06;
+mod up_the_ante;
 
 fn main() {
     let start = Instant::now();
