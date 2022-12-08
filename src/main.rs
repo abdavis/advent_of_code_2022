@@ -11,5 +11,5 @@ fn main() {
     let start = Instant::now();
     let ante_day05 = up_the_ante::day05::run();
     let time = start.elapsed();
-    println!("Day 3 completed in {time:?}\n{ante_day05}");
+    println!("Day 5 completed in {time:?}\n{ante_day05}");
 }
