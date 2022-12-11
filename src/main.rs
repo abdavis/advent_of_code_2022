@@ -7,6 +7,7 @@ mod day05;
 mod day06;
 mod day07;
 mod day08;
+mod day09;
 
 fn main() {
     let start = Instant::now();
@@ -34,4 +35,8 @@ fn main() {
     let day08 = day08::run();
     let time = start.elapsed();
     println!("Day 8 completed in {time:?}\n{day08}");
+    let start = Instant::now();
+    let day09 = day09::run();
+    let time = start.elapsed();
+    println!("Day 9 completed in {time:?}\n{day09}");
 }
