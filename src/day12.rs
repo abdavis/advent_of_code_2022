@@ -1,13 +1,16 @@
-use std::collections::{BinaryHeap, HashSet};
+use std::io::Write;
+use std::{
+    collections::{BinaryHeap, HashSet},
+    rc::Rc,
+};
 
 const INPUT: &str = include_str!("inputs/day12.txt");
 pub fn run() -> String {
     let mut input: Topography<41, 70> = INPUT.into();
-    format!(
-        "{}\n{}",
-        input.shortest_path(None),
-        input.shortest_possible_path()
-    )
+    let a = input.shortest_path(None);
+    std::thread::sleep(std::time::Duration::from_secs(3));
+    let b = input.shortest_possible_path();
+    format!("{}\n{}", a, b)
 }
 struct Topography<const ROWS: usize, const COLS: usize> {
     heights: [[u8; COLS]; ROWS],
@@ -25,6 +28,7 @@ impl<const ROWS: usize, const COLS: usize> Topography<ROWS, COLS> {
                     starting_nodes.push(SearchNode {
                         pos: (row, col),
                         cost: 0,
+                        parent: None,
                     })
                 }
             }
@@ -32,6 +36,17 @@ impl<const ROWS: usize, const COLS: usize> Topography<ROWS, COLS> {
         self.shortest_path(Some(starting_nodes))
     }
     fn shortest_path(&self, starting_nodes: Option<BinaryHeap<SearchNode>>) -> usize {
+        use crossterm::{
+            cursor::{position, DisableBlinking},
+            terminal::{Clear, ClearType},
+            ExecutableCommand,
+        };
+        use std::io::stdout;
+        let mut stdout = stdout();
+        stdout
+            .execute(DisableBlinking)
+            .unwrap()
+            .execute(Clear(ClearType::All));
         let mut completed = HashSet::new();
         let mut queue = match starting_nodes {
             None => {
@@ -39,12 +54,14 @@ impl<const ROWS: usize, const COLS: usize> Topography<ROWS, COLS> {
                 heap.push(SearchNode {
                     pos: self.start,
                     cost: 0,
+                    parent: None,
                 });
                 heap
             }
             Some(heap) => heap,
         };
         while let Some(node) = queue.pop() {
+            self.display(&node, &completed, &mut stdout);
             if node.pos == self.end {
                 return node.cost;
             }
@@ -61,6 +78,10 @@ impl<const ROWS: usize, const COLS: usize> Topography<ROWS, COLS> {
                 queue.push(SearchNode {
                     pos: (node.pos.0 + 1, node.pos.1),
                     cost: node.cost + 1,
+                    parent: Some(Rc::new(Parent {
+                        pos: node.pos,
+                        parent: node.parent.clone(),
+                    })),
                 })
             }
             if node.pos.0 > 0
@@ -71,6 +92,10 @@ impl<const ROWS: usize, const COLS: usize> Topography<ROWS, COLS> {
                 queue.push(SearchNode {
                     pos: (node.pos.0 - 1, node.pos.1),
                     cost: node.cost + 1,
+                    parent: Some(Rc::new(Parent {
+                        pos: node.pos,
+                        parent: node.parent.clone(),
+                    })),
                 })
             }
             if node.pos.1 < COLS - 1
@@ -81,6 +106,10 @@ impl<const ROWS: usize, const COLS: usize> Topography<ROWS, COLS> {
                 queue.push(SearchNode {
                     pos: (node.pos.0, node.pos.1 + 1),
                     cost: node.cost + 1,
+                    parent: Some(Rc::new(Parent {
+                        pos: node.pos,
+                        parent: node.parent.clone(),
+                    })),
                 })
             }
             if node.pos.1 > 0
@@ -91,18 +120,66 @@ impl<const ROWS: usize, const COLS: usize> Topography<ROWS, COLS> {
                 queue.push(SearchNode {
                     pos: (node.pos.0, node.pos.1 - 1),
                     cost: node.cost + 1,
+                    parent: Some(Rc::new(Parent {
+                        pos: node.pos,
+                        parent: node.parent.clone(),
+                    })),
                 })
             }
         }
 
         panic!("no path found")
     }
+    fn display(
+        &self,
+        node: &SearchNode,
+        found: &HashSet<(usize, usize)>,
+        stdout: &mut std::io::Stdout,
+    ) {
+        use crossterm::{
+            cursor::{MoveTo, RestorePosition},
+            style::{Color, Print, SetForegroundColor},
+            ExecutableCommand, QueueableCommand,
+        };
+        let mut path_set = HashSet::new();
+        path_set.insert(node.pos);
+        if let Some(par) = &node.parent {
+            par.collect_path(&mut path_set);
+        }
+
+        stdout.execute(MoveTo(0, 0)).unwrap();
+
+        for (r, row) in self.heights.iter().enumerate() {
+            for (c, val) in row.iter().enumerate() {
+                let num = (val + 2).saturating_mul(10);
+                stdout
+                    .queue(SetForegroundColor(if path_set.contains(&(r, c)) {
+                        Color::Rgb { r: 0, g: num, b: 0 }
+                    } else if found.contains(&(r, c)) {
+                        Color::Rgb { r: num, g: 0, b: 0 }
+                    } else {
+                        Color::Rgb {
+                            r: num,
+                            g: num,
+                            b: num,
+                        }
+                    }))
+                    .unwrap();
+                stdout.queue(Print("██")).unwrap();
+            }
+            stdout.queue(Print('\n')).unwrap();
+        }
+        stdout.flush().unwrap();
+        std::thread::sleep(std::time::Duration::from_millis(5));
+    }
 }
 
 struct SearchNode {
     pos: (usize, usize),
     cost: usize,
+    parent: Option<Rc<Parent>>,
 }
+
 impl Ord for SearchNode {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         other.cost.cmp(&self.cost)
@@ -147,5 +224,17 @@ impl<const ROWS: usize, const COLS: usize> From<&str> for Topography<ROWS, COLS>
             end,
             heights,
         }
+    }
+}
+struct Parent {
+    pos: (usize, usize),
+    parent: Option<Rc<Parent>>,
+}
+impl Parent {
+    fn collect_path(&self, set: &mut HashSet<(usize, usize)>) {
+        if let Some(parent) = &self.parent {
+            parent.collect_path(set);
+        }
+        set.insert(self.pos);
     }
 }
