@@ -61,12 +61,12 @@ impl<const ROWS: usize, const COLS: usize> Topography<ROWS, COLS> {
             Some(heap) => heap,
         };
         while let Some(node) = queue.pop() {
+            if completed.contains(&node.pos) {
+                continue;
+            }
             self.display(&node, &completed, &mut stdout);
             if node.pos == self.end {
                 return node.cost;
-            }
-            if completed.contains(&node.pos) {
-                continue;
             }
 
             completed.insert(node.pos);
