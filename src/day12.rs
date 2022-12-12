@@ -1,6 +1,6 @@
 use std::io::Write;
 use std::{
-    collections::{BinaryHeap, HashSet},
+    collections::{HashSet, VecDeque},
     rc::Rc,
 };
 
@@ -20,12 +20,12 @@ struct Topography<const ROWS: usize, const COLS: usize> {
 
 impl<const ROWS: usize, const COLS: usize> Topography<ROWS, COLS> {
     fn shortest_possible_path(&mut self) -> usize {
-        let mut starting_nodes = BinaryHeap::new();
+        let mut starting_nodes = VecDeque::new();
 
         for row in 0..ROWS {
             for col in 0..COLS {
                 if self.heights[row][col] == 0 {
-                    starting_nodes.push(SearchNode {
+                    starting_nodes.push_back(SearchNode {
                         pos: (row, col),
                         cost: 0,
                         parent: None,
@@ -35,9 +35,9 @@ impl<const ROWS: usize, const COLS: usize> Topography<ROWS, COLS> {
         }
         self.shortest_path(Some(starting_nodes))
     }
-    fn shortest_path(&self, starting_nodes: Option<BinaryHeap<SearchNode>>) -> usize {
+    fn shortest_path(&self, starting_nodes: Option<VecDeque<SearchNode>>) -> usize {
         use crossterm::{
-            cursor::{position, DisableBlinking},
+            cursor::DisableBlinking,
             terminal::{Clear, ClearType},
             ExecutableCommand,
         };
@@ -50,8 +50,8 @@ impl<const ROWS: usize, const COLS: usize> Topography<ROWS, COLS> {
         let mut completed = HashSet::new();
         let mut queue = match starting_nodes {
             None => {
-                let mut heap = BinaryHeap::new();
-                heap.push(SearchNode {
+                let mut heap = VecDeque::new();
+                heap.push_back(SearchNode {
                     pos: self.start,
                     cost: 0,
                     parent: None,
@@ -60,7 +60,7 @@ impl<const ROWS: usize, const COLS: usize> Topography<ROWS, COLS> {
             }
             Some(heap) => heap,
         };
-        while let Some(node) = queue.pop() {
+        while let Some(node) = queue.pop_front() {
             if completed.contains(&node.pos) {
                 continue;
             }
@@ -75,7 +75,7 @@ impl<const ROWS: usize, const COLS: usize> Topography<ROWS, COLS> {
                 && self.heights[node.pos.0 + 1][node.pos.1]
                     <= self.heights[node.pos.0][node.pos.1] + 1
             {
-                queue.push(SearchNode {
+                queue.push_back(SearchNode {
                     pos: (node.pos.0 + 1, node.pos.1),
                     cost: node.cost + 1,
                     parent: Some(Rc::new(Parent {
@@ -89,7 +89,7 @@ impl<const ROWS: usize, const COLS: usize> Topography<ROWS, COLS> {
                 && self.heights[node.pos.0 - 1][node.pos.1]
                     <= self.heights[node.pos.0][node.pos.1] + 1
             {
-                queue.push(SearchNode {
+                queue.push_back(SearchNode {
                     pos: (node.pos.0 - 1, node.pos.1),
                     cost: node.cost + 1,
                     parent: Some(Rc::new(Parent {
@@ -103,7 +103,7 @@ impl<const ROWS: usize, const COLS: usize> Topography<ROWS, COLS> {
                 && self.heights[node.pos.0][node.pos.1 + 1]
                     <= self.heights[node.pos.0][node.pos.1] + 1
             {
-                queue.push(SearchNode {
+                queue.push_back(SearchNode {
                     pos: (node.pos.0, node.pos.1 + 1),
                     cost: node.cost + 1,
                     parent: Some(Rc::new(Parent {
@@ -117,7 +117,7 @@ impl<const ROWS: usize, const COLS: usize> Topography<ROWS, COLS> {
                 && self.heights[node.pos.0][node.pos.1 - 1]
                     <= self.heights[node.pos.0][node.pos.1] + 1
             {
-                queue.push(SearchNode {
+                queue.push_back(SearchNode {
                     pos: (node.pos.0, node.pos.1 - 1),
                     cost: node.cost + 1,
                     parent: Some(Rc::new(Parent {
@@ -137,7 +137,7 @@ impl<const ROWS: usize, const COLS: usize> Topography<ROWS, COLS> {
         stdout: &mut std::io::Stdout,
     ) {
         use crossterm::{
-            cursor::{MoveTo, RestorePosition},
+            cursor::MoveTo,
             style::{Color, Print, SetForegroundColor},
             ExecutableCommand, QueueableCommand,
         };
@@ -170,7 +170,7 @@ impl<const ROWS: usize, const COLS: usize> Topography<ROWS, COLS> {
             stdout.queue(Print('\n')).unwrap();
         }
         stdout.flush().unwrap();
-        std::thread::sleep(std::time::Duration::from_millis(5));
+        std::thread::sleep(std::time::Duration::from_millis(10));
     }
 }
 
@@ -180,22 +180,6 @@ struct SearchNode {
     parent: Option<Rc<Parent>>,
 }
 
-impl Ord for SearchNode {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        other.cost.cmp(&self.cost)
-    }
-}
-impl PartialOrd for SearchNode {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        Some(other.cost.cmp(&self.cost))
-    }
-}
-impl Eq for SearchNode {}
-impl PartialEq for SearchNode {
-    fn eq(&self, other: &Self) -> bool {
-        self.cost == other.cost
-    }
-}
 impl<const ROWS: usize, const COLS: usize> From<&str> for Topography<ROWS, COLS> {
     fn from(input: &str) -> Self {
         let mut start = (0, 0);
