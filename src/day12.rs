@@ -1,5 +1,5 @@
 use std::io::stdout;
-use std::io::{Stdout, Write};
+use std::io::Write;
 use std::{
     collections::{HashSet, VecDeque},
     rc::Rc,
@@ -7,7 +7,7 @@ use std::{
 
 const INPUT: &str = include_str!("inputs/day12.txt");
 pub fn run(graphical_mode: bool) -> String {
-    let mut input: Topography<41, 70> = INPUT.into();
+    let input: Topography<41, 70> = INPUT.into();
     let (a, b) = input.shortest_path(graphical_mode);
     format!("{}\n{}", a, b)
 }
@@ -19,17 +19,6 @@ struct Topography<const ROWS: usize, const COLS: usize> {
 
 impl<const ROWS: usize, const COLS: usize> Topography<ROWS, COLS> {
     fn shortest_path(&self, display: bool) -> (usize, usize) {
-        use crossterm::{
-            cursor::DisableBlinking,
-            terminal::{Clear, ClearType},
-            ExecutableCommand,
-        };
-        use std::io::stdout;
-        let mut stdout = stdout();
-        stdout
-            .execute(DisableBlinking)
-            .unwrap()
-            .execute(Clear(ClearType::All));
         let mut completed = HashSet::new();
         let mut queue = VecDeque::new();
         queue.push_back(SearchNode {
