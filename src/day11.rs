@@ -47,6 +47,10 @@ fn part_1(rounds: usize, monkeys: &mut Vec<Monkey>) {
     }
 }
 fn part_2(rounds: usize, monkeys: &mut Vec<Monkey>) {
+    let mut global_modulus = 1;
+    for monkey in monkeys.iter() {
+        global_modulus *= monkey.modulus;
+    }
     for _ in 0..rounds {
         for n in 0..monkeys.len() {
             monkeys[n].count += monkeys[n].queue.len();
@@ -55,13 +59,13 @@ fn part_2(rounds: usize, monkeys: &mut Vec<Monkey>) {
             for mut item in new_vec {
                 use Operation::*;
                 match monkeys[n].operation {
-                    Mul(v) => item *= v % monkeys[n].modulus,
-                    MulSelf => item *= item % monkeys[n].modulus,
-                    Plus(v) => item += v % monkeys[n].modulus,
-                    PlusSelf => item *= 2 % monkeys[n].modulus,
+                    Mul(v) => item *= v % global_modulus,
+                    MulSelf => item *= item % global_modulus,
+                    Plus(v) => item += v % global_modulus,
+                    PlusSelf => item *= 2 % global_modulus,
                 }
-                item %= monkeys[n].modulus;
-                if item == 0 {
+                item %= global_modulus;
+                if item % monkeys[n].modulus == 0 {
                     let idx = monkeys[n].true_throw;
                     monkeys[idx].queue.push(item);
                 } else {
@@ -75,17 +79,17 @@ fn part_2(rounds: usize, monkeys: &mut Vec<Monkey>) {
 #[derive(Clone)]
 struct Monkey {
     count: usize,
-    queue: Vec<usize>,
+    queue: Vec<u64>,
     operation: Operation,
-    modulus: usize,
+    modulus: u64,
     true_throw: usize,
     false_throw: usize,
 }
 #[derive(Clone)]
 enum Operation {
-    Plus(usize),
+    Plus(u64),
     PlusSelf,
-    Mul(usize),
+    Mul(u64),
     MulSelf,
 }
 impl From<&str> for Monkey {
