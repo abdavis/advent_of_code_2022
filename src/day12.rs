@@ -38,7 +38,7 @@ impl<const ROWS: usize, const COLS: usize> Topography<ROWS, COLS> {
             if node.pos == self.start {
                 part_a = Some(node.clone());
             }
-            if self.heights[node.pos.0][node.pos.1] == 0 && part_b.is_none() {
+            if self.heights[node.pos.0][node.pos.1] == 1 && part_b.is_none() {
                 part_b = Some(node.clone());
             }
             if let (Some(a), Some(b)) = (&part_a, &part_b) {
@@ -194,13 +194,13 @@ impl<const ROWS: usize, const COLS: usize> From<&str> for Topography<ROWS, COLS>
                 match chars.next().unwrap() {
                     'S' => {
                         start = (row, col);
-                        heights[row][col] = 0;
+                        heights[row][col] = 1;
                     }
                     'E' => {
                         end = (row, col);
-                        heights[row][col] = 25
+                        heights[row][col] = 26
                     }
-                    c @ 'a'..='z' => heights[row][col] = c as u8 - 'a' as u8,
+                    c @ 'a'..='z' => heights[row][col] = c as u8 - 'a' as u8 + 1,
                     _ => panic!("Bad input while parsing"),
                 }
             }
