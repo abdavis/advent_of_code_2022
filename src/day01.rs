@@ -1,8 +1,8 @@
 const INPUT: &str = include_str!("inputs/day01.txt");
 
-pub fn run() {
+pub fn run() -> String {
     let (max, max3) = sum3_calories(INPUT);
-    println!("Max: {max}\nMax 3 foods: {max3}");
+    format!("Max: {max}\nMax 3 foods: {max3}")
 }
 
 fn sum3_calories(input: &str) -> (u32, u32) {
