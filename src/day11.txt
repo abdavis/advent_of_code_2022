@@ -46,32 +46,32 @@ fn part_1(rounds: usize, monkeys: &mut Vec<Monkey>) {
         }
     }
 }
-fn part_2(rounds: usize, monkeys: &mut Vec<Monkey>) {
-    for _ in 0..rounds {
-        for n in 0..monkeys.len() {
-            monkeys[n].count += monkeys[n].queue.len();
-            let mut new_vec = Vec::new();
-            std::mem::swap(&mut new_vec, &mut monkeys[n].queue);
-            for mut item in new_vec {
-                use Operation::*;
-                match monkeys[n].operation {
-                    Mul(v) => item *= v % monkeys[n].modulus,
-                    MulSelf => item *= item % monkeys[n].modulus,
-                    Plus(v) => item += v % monkeys[n].modulus,
-                    PlusSelf => item *= 2 % monkeys[n].modulus,
-                }
-                item %= monkeys[n].modulus;
-                if item == 0 {
-                    let idx = monkeys[n].true_throw;
-                    monkeys[idx].queue.push(item);
-                } else {
-                    let idx = monkeys[n].false_throw;
-                    monkeys[idx].queue.push(item);
+    fn part_2(rounds: usize, monkeys: &mut Vec<Monkey>) {
+        for _ in 0..rounds {
+            for n in 0..monkeys.len() {
+                monkeys[n].count += monkeys[n].queue.len();
+                let mut new_vec = Vec::new();
+                std::mem::swap(&mut new_vec, &mut monkeys[n].queue);
+                for mut item in new_vec {
+                    use Operation::*;
+                    match monkeys[n].operation {
+                        Mul(v) => item *= v % monkeys[n].modulus,
+                        MulSelf => item *= item,
+                        Plus(v) => item += v,
+                        PlusSelf => item *= 2 % monkeys[n].modulus,
+                    }
+                    item %= monkeys[n].modulus;
+                    if item == 0 {
+                        let idx = monkeys[n].true_throw;
+                        monkeys[idx].queue.push(item);
+                    } else {
+                        let idx = monkeys[n].false_throw;
+                        monkeys[idx].queue.push(item);
+                    }
                 }
             }
         }
     }
-}
 #[derive(Clone)]
 struct Monkey {
     count: usize,
