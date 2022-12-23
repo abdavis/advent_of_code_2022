@@ -1,8 +1,13 @@
 use core::cmp::{max, min};
 use std::collections::HashMap;
 const INPUT: &str = include_str!("inputs/day14.txt");
+const EXAMPLE: &str = "498,4 -> 498,6 -> 496,6
+503,4 -> 502,4 -> 502,9 -> 494,9";
 pub fn run() -> String {
-    todo!()
+    let mut cave: Cave = INPUT.into();
+    let part_1 = cave.pour_sand();
+
+    format!("{cave}{part_1}")
 }
 
 struct Cave {
@@ -12,14 +17,76 @@ struct Cave {
     field: HashMap<Point, Space>,
 }
 impl Cave {
-    fn pour_sand(&mut self) -> usize {}
+    fn pour_sand(&mut self) -> usize {
+        let mut count = 0;
+        'outer: loop {
+            let mut grain = self.source;
+            loop {
+                if !self.check_bounds(grain) {
+                    break 'outer;
+                }
+                if !self.field.contains_key(&Point {
+                    x: grain.x,
+                    y: grain.y + 1,
+                }) {
+                    grain = Point {
+                        x: grain.x,
+                        y: grain.y + 1,
+                    };
+                } else if !self.field.contains_key(&Point {
+                    x: grain.x - 1,
+                    y: grain.y + 1,
+                }) {
+                    grain = Point {
+                        x: grain.x - 1,
+                        y: grain.y + 1,
+                    };
+                } else if !self.field.contains_key(&Point {
+                    x: grain.x + 1,
+                    y: grain.y + 1,
+                }) {
+                    grain = Point {
+                        x: grain.x + 1,
+                        y: grain.y + 1,
+                    };
+                } else {
+                    count += 1;
+                    self.field.insert(grain, Space::Sand);
+                    break;
+                }
+            }
+        }
+        count
+    }
+    fn check_bounds(&self, point: Point) -> bool {
+        point.x >= self.min_bound.x && point.x <= self.max_bound.x && point.y <= self.max_bound.y
+    }
+}
+impl std::fmt::Display for Cave {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for y in 0..=self.max_bound.y {
+            for x in self.min_bound.x..=self.max_bound.x {
+                write!(
+                    f,
+                    "{}",
+                    match self.field.get(&Point { x, y }) {
+                        None => ".",
+                        Some(Space::Wall) => "#",
+                        Some(Space::Sand) => "O",
+                    }
+                )?
+            }
+            write!(f, "\n")?
+        }
+        write!(f, "")
+    }
 }
 impl From<&str> for Cave {
     fn from(input: &str) -> Self {
         let mut field = HashMap::new();
         let mut min_bound = Point {
-            x: usize::MAX,
-            y: usize::MAX,
+            x: u16::MAX,
+            y: u16::MAX,
         };
         let mut max_bound = Point { x: 0, y: 0 };
         for line in input.lines() {
@@ -31,6 +98,7 @@ impl From<&str> for Cave {
                 for point in Point::range(last_point, next_point) {
                     field.insert(point, Space::Wall);
                 }
+                last_point = next_point;
             }
         }
         Self {
@@ -43,8 +111,8 @@ impl From<&str> for Cave {
 }
 #[derive(Clone, Copy, Hash, Eq, PartialEq)]
 struct Point {
-    x: usize,
-    y: usize,
+    x: u16,
+    y: u16,
 }
 impl Point {
     fn expand_bounds(&self, minimum: &mut Self, maximum: &mut Self) {
