@@ -5,9 +5,10 @@ const EXAMPLE: &str = "498,4 -> 498,6 -> 496,6
 503,4 -> 502,4 -> 502,9 -> 494,9";
 pub fn run() -> String {
     let mut cave: Cave = INPUT.into();
-    let part_1 = cave.pour_sand();
-
-    format!("{cave}{part_1}")
+    let part_1 = cave.pour_sand(false);
+    println!("part 1 finished");
+    let part_2 = part_1 + cave.pour_sand(true);
+    format!("{part_1}\n{part_2}")
 }
 
 struct Cave {
@@ -17,13 +18,19 @@ struct Cave {
     field: HashMap<Point, Space>,
 }
 impl Cave {
-    fn pour_sand(&mut self) -> usize {
+    fn pour_sand(&mut self, floor: bool) -> usize {
         let mut count = 0;
         'outer: loop {
             let mut grain = self.source;
             loop {
-                if !self.check_bounds(grain) {
+                if !floor && !self.check_bounds(grain) {
                     break 'outer;
+                }
+                if floor && grain.y > self.max_bound.y {
+                    count += 1;
+                    self.field.insert(grain, Space::Sand);
+                    self.expand_width(grain);
+                    break;
                 }
                 if !self.field.contains_key(&Point {
                     x: grain.x,
@@ -52,6 +59,9 @@ impl Cave {
                 } else {
                     count += 1;
                     self.field.insert(grain, Space::Sand);
+                    if grain == self.source {
+                        break 'outer;
+                    }
                     break;
                 }
             }
@@ -61,10 +71,14 @@ impl Cave {
     fn check_bounds(&self, point: Point) -> bool {
         point.x >= self.min_bound.x && point.x <= self.max_bound.x && point.y <= self.max_bound.y
     }
+    fn expand_width(&mut self, point: Point) {
+        self.min_bound.x = min(self.min_bound.x, point.x);
+        self.max_bound.x = max(self.max_bound.x, point.x);
+    }
 }
 impl std::fmt::Display for Cave {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        for y in 0..=self.max_bound.y {
+        for y in 0..=self.max_bound.y + 1 {
             for x in self.min_bound.x..=self.max_bound.x {
                 write!(
                     f,
@@ -109,7 +123,7 @@ impl From<&str> for Cave {
         }
     }
 }
-#[derive(Clone, Copy, Hash, Eq, PartialEq)]
+#[derive(Clone, Copy, Hash, Eq, PartialEq, Debug)]
 struct Point {
     x: u16,
     y: u16,
