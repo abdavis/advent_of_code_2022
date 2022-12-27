@@ -15,6 +15,7 @@ mod day13;
 mod day14;
 mod day15;
 mod day16;
+mod day17;
 
 fn main() {
     let start = Instant::now();
@@ -95,4 +96,8 @@ fn main() {
     let day16 = day16::run();
     let time = start.elapsed();
     println!("Day 16 completed in {time:?}\n{day16}\n");
+
+    let day17 = day17::run();
+    let time = start.elapsed();
+    println!("Day 17 completed in {time:?}\n{day17}\n");
 }
