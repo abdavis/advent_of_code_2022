@@ -1,116 +1,191 @@
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::fmt::Display;
+
 const INPUT: &str = include_str!("inputs/day16.txt");
 const EXAMPLE: &str = include_str!("example_inputs/day16.txt");
 pub fn run() -> String {
-    let graph: Graph = INPUT.into();
-    let part_1 = graph.part_1();
-    format!("{part_1}")
+    //let test_graph: Graph<10> = EXAMPLE.into();
+    let graph: Graph<59> = INPUT.into();
+    format!("{}", graph.part_1())
 }
-
 #[derive(Clone)]
-struct Graph<'a>(HashMap<&'a str, Node<'a>>);
-impl<'a> From<&'a str> for Graph<'a> {
-    fn from(value: &'a str) -> Self {
-        let mut out = Self(
-            value
-                .lines()
-                .map(|l| (l.split_whitespace().skip(1).next().unwrap(), l.into()))
-                .collect(),
-        );
-        out.0.shrink_to_fit();
-        out
-    }
+struct Worker {
+    pos: usize,
+    status: Status,
 }
-impl<'a> Graph<'a> {
-    fn part_1(&self) -> usize {
-        self.clone()
-            .recurse(0, 30, self.get_closed_valves(&"AA"), &mut HashMap::new())
-    }
-    fn recurse(
-        self,
-        release_rate: usize,
+#[derive(Clone)]
+enum Status {
+    Ready,
+    working(usize),
+}
+struct Graph<'a, const N: usize> {
+    key: GraphKey<'a, N>,
+    costs: GraphCosts<N>,
+}
+impl<const N: usize> Graph<'_, N> {
+    fn part_2_recurse(
+        &self,
         time_left: usize,
-        closed_valves: Vec<(&'a str, usize)>,
-        memoizer: &mut HashMap<(usize, usize, Vec<(&'a str, usize)>), usize>,
+        valves_opened: u64,
+        me: Worker,
+        elephant: Worker,
     ) -> usize {
         if time_left == 0 {
             return 0;
         }
-        if closed_valves.len() == 0 {
-            return release_rate * time_left;
+        if valves_opened.trailing_ones() as usize == N {
+            return 0;
         }
-        if let Some(val) = memoizer.get(&(release_rate, time_left, closed_valves.clone())) {
-            return *val;
-        }
-        let mut maximum = 0;
-        for (key, cost) in &closed_valves {
-            let mut new_self = self.clone();
-            let new_release_rate = new_self.0[key].flow_rate + release_rate;
-            new_self.0.get_mut(key).unwrap().flow_rate = 0;
-            let mut pressure_release = release_rate * (cost + 1);
-            let mut closed_valves = new_self.get_closed_valves(key);
-            closed_valves.shrink_to_fit();
-            pressure_release += new_self.recurse(
-                new_release_rate,
-                time_left - cost - 1,
-                closed_valves,
-                memoizer,
-            );
-            if pressure_release > maximum {
-                maximum = pressure_release;
+        match (&me.status, &elephant.status) {
+            (Status::Ready, Status::Ready) => {
+                let mut max_release = 0;
+                let mut me_working = false;
+                for m_j in 0..N {
+                    if valves_opened & (1 << m_j) != 0 {
+                        continue;
+                    }
+                    let me_spent_time = (self.costs.0[me.pos][m_j]) as usize + 1;
+                    if me_spent_time >= time_left {
+                        continue;
+                    }
+                    let mut new_me = me.clone();
+                    new_me.pos = m_j;
+                    new_me.status = Status::working(me_spent_time);
+                    let mut elephant_working = false;
+                    for e_j in (0..m_j).chain(m_j + 1..N) {
+                        if valves_opened & (1 << e_j) != 0 {
+                            continue;
+                        }
+                        let eleph_spent_time = (self.costs.0[elephant.pos][e_j]) as usize + 1;
+                        if eleph_spent_time >= time_left {
+                            continue;
+                        }
+                    }
+                }
+                max_release
             }
+            (Status::Ready, Status::working(_)) => todo!(),
+            (Status::working(_), Status::Ready) => todo!(),
+            (Status::working(_), Status::working(_)) => todo!(),
         }
-        memoizer.insert((release_rate, time_left, closed_valves), maximum);
-        maximum
     }
-    fn get_closed_valves(&self, start: &'a str) -> Vec<(&'a str, usize)> {
-        let mut closed_valves = Vec::new();
-        let mut visited = HashSet::new();
-        let mut queue = VecDeque::new();
-        queue.push_back((start, 0));
-        while let Some(val) = queue.pop_front() {
-            if visited.contains(&val.0) {
+    fn part_1(&self) -> usize {
+        let valves_opened = self.broken_valves();
+        let node_index = self.key.names.iter().position(|n| *n == "AA").unwrap();
+        self.part_1_recurse(30, valves_opened, node_index)
+    }
+    fn part_1_recurse(&self, time_left: usize, valves_opened: u64, node_index: usize) -> usize {
+        //return 0 if all valves are opened
+        if valves_opened.trailing_ones() == N as u32 {
+            return 0;
+        }
+        if time_left == 0 {
+            return 0;
+        }
+        let mut max_release = 0;
+        for j in 0..N {
+            if valves_opened & (1 << j) != 0 {
                 continue;
             }
-            visited.insert(val.0);
-            if self.0[&val.0].flow_rate > 0 {
-                closed_valves.push(val);
+            let spent_time = (self.costs.0[node_index][j] + 1) as usize;
+            if spent_time > time_left {
+                //skip if valve can't be reached in time
+                continue;
             }
-            for edge in &self.0[&val.0].edges {
-                queue.push_back((edge, val.1 + 1));
+            let new_time_left = time_left - spent_time;
+            let pressure_release = new_time_left * self.key.flow_rates[j] as usize;
+            max_release = max_release.max(
+                pressure_release + self.part_1_recurse(new_time_left, valves_opened | (1 << j), j),
+            );
+        }
+        max_release
+    }
+    fn broken_valves(&self) -> u64 {
+        let mut out = 0;
+        for (i, flow) in self.key.flow_rates.iter().enumerate() {
+            if *flow == 0 {
+                out |= 1 << i;
             }
         }
-        closed_valves
+        out
+    }
+}
+impl<'a, const N: usize> From<&'a str> for Graph<'a, N> {
+    fn from(value: &'a str) -> Self {
+        let key: GraphKey<N> = value.into();
+        let costs = (&key).into();
+        Self { key, costs }
+    }
+}
+impl<const N: usize> Display for Graph<'_, N> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        //header
+        write!(f, "{:>3}", "")?;
+        for node in self.key.names {
+            write!(f, "{node:>3}")?;
+        }
+
+        write!(f, "\n")?;
+        for (i, node) in self.key.names.iter().enumerate() {
+            write!(f, "{node:>3}")?;
+            for j in 0..N {
+                write!(f, "{:>3}", self.costs.0[i][j])?;
+            }
+            write!(f, "\n")?;
+        }
+        write!(f, "\n")
+    }
+}
+#[derive(Debug)]
+struct GraphCosts<const N: usize>([[u8; N]; N]);
+impl<const N: usize> From<&GraphKey<'_, N>> for GraphCosts<N> {
+    fn from(value: &GraphKey<N>) -> Self {
+        let mut graph = [[255u8; N]; N];
+        for (i, edges) in value.edges.iter().enumerate() {
+            graph[i][i] = 0;
+            for edge in edges {
+                let j = value.names.iter().position(|v| v == edge).expect(
+                    "couldn't find node {edge}, did you specify the right number of nodes?",
+                );
+                graph[i][j] = 1;
+            }
+        }
+        for k in 0..N {
+            for i in 0..N {
+                for j in 0..N {
+                    if graph[i][j] > graph[i][k].saturating_add(graph[k][j]) {
+                        graph[i][j] = graph[i][k].saturating_add(graph[k][j]);
+                    }
+                }
+            }
+        }
+        Self(graph)
     }
 }
 
-#[derive(Clone)]
-struct Node<'a> {
-    flow_rate: usize,
-    edges: Vec<&'a str>,
+#[derive(Debug)]
+struct GraphKey<'a, const N: usize> {
+    flow_rates: [u8; N],
+    names: [&'a str; N],
+    edges: [Vec<&'a str>; N],
 }
-impl<'a> From<&'a str> for Node<'a> {
-    fn from(value: &'a str) -> Self {
-        let (node_str, edges_str) = value.split_once(';').unwrap();
-        let mut node_parts = node_str.split_ascii_whitespace().skip(1).step_by(3);
-        let _key = node_parts.next().unwrap();
-        let flow_rate = node_parts
-            .next()
-            .unwrap()
-            .split_once('=')
-            .unwrap()
-            .1
-            .parse()
-            .unwrap();
-
-        let mut edges: Vec<&str> = edges_str
-            .split_ascii_whitespace()
-            .skip(4)
-            .map(|s| s.trim_end_matches(','))
-            .collect();
-
-        edges.shrink_to_fit();
-
-        Self { flow_rate, edges }
+impl<'a, const N: usize> From<&'a str> for GraphKey<'a, N> {
+    fn from(input: &'a str) -> Self {
+        let mut graphkey = GraphKey {
+            flow_rates: [0; N],
+            names: [""; N],
+            edges: std::array::from_fn(|_| Vec::new()),
+        };
+        for (i, line) in input.lines().enumerate() {
+            let mut parts = line
+                .split([' ', '=', ';', ','])
+                .filter(|w| w.len() > 0)
+                .skip(1);
+            graphkey.names[i] = parts.next().unwrap();
+            let mut parts = parts.skip(3);
+            graphkey.flow_rates[i] = parts.next().unwrap().parse().unwrap();
+            let mut parts = parts.skip(4);
+            graphkey.edges[i] = parts.collect();
+        }
+        graphkey
     }
 }
