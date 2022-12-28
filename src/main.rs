@@ -93,9 +93,9 @@ fn main() {
     let time = start.elapsed();
     println!("Day 15 completed in {time:?}\n{day15}\n");
 
-    let day16 = day16::run();
-    let time = start.elapsed();
-    println!("Day 16 completed in {time:?}\n{day16}\n");
+    //let day16 = day16::run();
+    //let time = start.elapsed();
+    //println!("Day 16 completed in {time:?}\n{day16}\n");
 
     let day17 = day17::run();
     let time = start.elapsed();
