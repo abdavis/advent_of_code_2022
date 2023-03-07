@@ -4,13 +4,19 @@ const EXAMPLE: &str = include_str!("example_inputs/day19.txt");
 pub fn run() -> String {
     let blueprints: Vec<Blueprint> = INPUT.lines().map(|l| l.into()).collect();
     format!(
-        "{}",
+        "{}\n{}",
         blueprints
             .iter()
             .enumerate()
             .map(|(n, blueprint)| (n + 1)
                 * Factory::default().maximize_geodes(blueprint, 24, &mut HashMap::new()))
-            .sum::<usize>()
+            .sum::<usize>(),
+        blueprints
+            .iter()
+            .take(3)
+            .map(|b| Factory::default().maximize_geodes(b, 32, &mut HashMap::new()))
+            .reduce(|acc, n| acc * n)
+            .unwrap()
     )
 }
 #[derive(PartialEq, Eq, Hash, Clone, Copy)]
@@ -25,9 +31,6 @@ struct Factory {
     geode_bots: usize,
 }
 impl Factory {
-    fn part_1(blueprint: &Blueprint) -> usize {
-        Self::default().maximize_geodes(blueprint, 24, &mut HashMap::new())
-    }
     fn maximize_geodes(
         &self,
         blueprint: &Blueprint,
