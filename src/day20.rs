@@ -68,7 +68,7 @@ impl<const T: usize> File<T> {
             //     println!("{:?}\n", self);
         }
         self.nums.sort_unstable_by_key(|(_, idx)| *idx);
-        println!("{:?}\n", self);
+        // println!("{:?}\n", self);
     }
     fn calc_coordinates(&self) -> i64 {
         let zero_idx = self.nums.iter().position(|(val, _)| *val == 0).unwrap();
