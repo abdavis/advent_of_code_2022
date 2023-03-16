@@ -22,6 +22,7 @@ mod day20;
 mod day21;
 mod day22;
 mod day24;
+mod day25;
 
 fn main() {
     let start = Instant::now();
@@ -137,4 +138,9 @@ fn main() {
     let day24 = day24::run();
     let time = start.elapsed();
     println!("day 24 completed in {time:?}\n{day24}\n");
+
+    let start = Instant::now();
+    let day25 = day25::run();
+    let time = start.elapsed();
+    println!("day 25 completed in {time:?}\n{day25}\n");
 }
