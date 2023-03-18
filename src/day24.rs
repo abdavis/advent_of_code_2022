@@ -49,7 +49,6 @@ impl<const ROWS: usize, const COLS: usize> Field<ROWS, COLS> {
         while let Some(queue_node) = queue.pop() {
             if let Node::Traveling { row, col, time } = queue_node.node {
                 if row == ROWS - 1 && col == self.end_col {
-                    println!("{}", searched.len());
                     return time + 1;
                 }
             }
