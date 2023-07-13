@@ -14,7 +14,7 @@ pub fn run() -> String {
     insert_divider_packets(&mut packets);
     packets.sort_unstable();
     let part_2 = find_divider_packets(&packets);
-    format!("{part_1}\n{part_2}")
+    format!("Part 1: {part_1}\nPart 2: {part_2}")
 }
 fn find_divider_packets(packets: &Vec<NestedList>) -> usize {
     let mut divider_packets = vec![];

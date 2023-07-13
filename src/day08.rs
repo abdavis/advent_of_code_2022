@@ -2,7 +2,11 @@ use std::cmp::min;
 const INPUT: &str = include_str!("inputs/day08.txt");
 pub fn run() -> String {
     let forest: Forest<99> = INPUT.into();
-    format!("{}\n{}", forest.count_visible(), forest.scenic_score())
+    format!(
+        "Part 1: {}\nPart 2: {}",
+        forest.count_visible(),
+        forest.scenic_score()
+    )
 }
 struct Forest<const N: usize>([[u8; N]; N]);
 impl<const N: usize> Forest<N> {

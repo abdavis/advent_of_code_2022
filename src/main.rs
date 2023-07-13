@@ -100,9 +100,9 @@ fn main() {
     let time = start.elapsed();
     println!("Day 15 completed in {time:?}\n{day15}\n");
 
-    //let day16 = day16::run();
-    //let time = start.elapsed();
-    //println!("Day 16 completed in {time:?}\n{day16}\n");
+    let day16 = day16::run();
+    let time = start.elapsed();
+    println!("Day 16 completed in {time:?}\n{day16}\n");
 
     let start = Instant::now();
     let day17 = day17::run();
@@ -114,10 +114,11 @@ fn main() {
     let time = start.elapsed();
     println!("Day 18 completed in {time:?}\n{day18}\n");
 
-    // let start = Instant::now();
-    // let day19 = day19::run();
-    // let time = start.elapsed();
-    // println!("Day 19 completed in {time:?}\n{day19}\n");
+    // this one is quite slow, takes over a minute to complete
+    let start = Instant::now();
+    let day19 = day19::run();
+    let time = start.elapsed();
+    println!("Day 19 completed in {time:?}\n{day19}\n");
 
     let start = Instant::now();
     let day20 = day20::run();
@@ -129,10 +130,10 @@ fn main() {
     let time = start.elapsed();
     println!("Day 21 completed in {time:?}\n{day21}\n");
 
-    // let start = Instant::now();
-    // let day22 = day22::run();
-    // let time = start.elapsed();
-    // println!("day 22 completed in {time:?}\n{day22}\n");
+    let start = Instant::now();
+    let day22 = day22::run();
+    let time = start.elapsed();
+    println!("day 22 completed in {time:?}\n{day22}\n");
 
     let start = Instant::now();
     let day24 = day24::run();

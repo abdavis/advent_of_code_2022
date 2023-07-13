@@ -5,7 +5,7 @@ const EXAMPLE: &str = include_str!("example_inputs/day19.txt");
 pub fn run() -> String {
     let blueprints: Vec<Blueprint> = INPUT.lines().map(|l| l.into()).collect();
     format!(
-        "{}\n{}",
+        "Part 1: {}\nPart 2: {}",
         blueprints
             .iter()
             .enumerate()

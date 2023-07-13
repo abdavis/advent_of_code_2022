@@ -2,7 +2,11 @@ const INPUT: &str = include_str!("inputs/day18.txt");
 const EXAMPLE: &str = include_str!("example_inputs/day18.txt");
 pub fn run() -> String {
     let voxels: Voxels<20> = INPUT.into();
-    format!("{}\n{}", voxels.surface_area(), voxels.outside_area())
+    format!(
+        "Part 1: {}\nPart 2: {}",
+        voxels.surface_area(),
+        voxels.outside_area()
+    )
 }
 
 struct Voxels<const N: usize>([[[State; N]; N]; N]);

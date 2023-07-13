@@ -2,7 +2,7 @@ const INPUT: &str = include_str!("inputs/day01.txt");
 
 pub fn run() -> String {
     let (max, max3) = sum3_calories(INPUT);
-    format!("Max: {max}\nMax 3 foods: {max3}")
+    format!("Part 1: {max}\nPart 2: {max3}")
 }
 
 fn sum3_calories(input: &str) -> (u32, u32) {

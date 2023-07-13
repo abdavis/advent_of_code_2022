@@ -9,7 +9,7 @@ const INPUT: &str = include_str!("inputs/day12.txt");
 pub fn run(graphical_mode: bool) -> String {
     let input: Topography<41, 70> = INPUT.into();
     let (a, b) = input.shortest_path(graphical_mode);
-    format!("{}\n{}", a, b)
+    format!("Part 1: {}\nPart 2: {}", a, b)
 }
 struct Topography<const ROWS: usize, const COLS: usize> {
     heights: [[u8; COLS]; ROWS],

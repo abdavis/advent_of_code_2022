@@ -2,7 +2,7 @@ const INPUT: &str = include_str!("inputs/day10.txt");
 const TEST: &str = include_str!("example_inputs/day10.txt");
 pub fn run() -> String {
     let (part_1, part_2) = both_parts(INPUT);
-    format!("{part_1}\n{}", to_string(part_2))
+    format!("Part 1: {part_1}\nPart 2:\n{}", to_string(part_2))
 }
 fn to_string(screen: [[bool; 40]; 6]) -> String {
     let mut out = String::new();

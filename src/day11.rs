@@ -5,7 +5,11 @@ pub fn run() -> String {
     let mut monkeys_2 = monkeys.clone();
     part_1(20, &mut monkeys);
     part_2(10_000, &mut monkeys_2);
-    format!("{}\n{}", max_count(&monkeys), max_count(&monkeys_2))
+    format!(
+        "Part 1: {}\nPart 2: {}",
+        max_count(&monkeys),
+        max_count(&monkeys_2)
+    )
 }
 fn max_count(monkeys: &Vec<Monkey>) -> usize {
     let mut max = 0;

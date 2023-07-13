@@ -6,9 +6,9 @@ const EXAMPLE: &str = "498,4 -> 498,6 -> 496,6
 pub fn run() -> String {
     let mut cave: Cave = INPUT.into();
     let part_1 = cave.pour_sand(false);
-    println!("part 1 finished");
+
     let part_2 = part_1 + cave.pour_sand(true);
-    format!("{part_1}\n{part_2}")
+    format!("Part 1: {part_1}\nPart 2: {part_2}")
 }
 
 struct Cave {

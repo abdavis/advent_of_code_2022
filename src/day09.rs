@@ -7,7 +7,7 @@ pub fn run() -> String {
     let mut long_rope = Rope::new(9);
 
     format!(
-        "{} spots visited by tail\n{} spots visited by tail",
+        "Part 1: {}\nPart 2: {}",
         rope.process_steps(&instructions),
         long_rope.process_steps(&instructions)
     )

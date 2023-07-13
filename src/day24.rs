@@ -11,7 +11,7 @@ pub fn run() -> String {
     let flipped = field.vert_flip();
 
     format!(
-        "{}\n{}",
+        "Part 1: {}\nPart 2: {}",
         field.find_path(0),
         field.find_path(flipped.find_path(field.find_path(0)))
     )

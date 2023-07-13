@@ -5,7 +5,7 @@ const EXAMPLE: &str = include_str!("example_inputs/day16.txt");
 pub fn run() -> String {
     //let test_graph: Graph<10> = EXAMPLE.into();
     let graph: Graph<59> = INPUT.into();
-    format!("{}\n{}", graph.part_1(), graph.part_2())
+    format!("Part 1: {}\nPart 2: {}", graph.part_1(), graph.part_2())
 }
 #[derive(Clone)]
 struct Worker {

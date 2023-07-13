@@ -6,7 +6,7 @@ pub fn run() -> String {
     let monkeys: AllMonkeys = INPUT.into();
 
     format!(
-        "{}\n{}",
+        "Part 1: {}\nPart 2: {}",
         monkeys.calculate("root").0,
         monkeys.calc_expected()
     )

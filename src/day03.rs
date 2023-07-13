@@ -1,6 +1,6 @@
 const INPUT: &str = include_str!("inputs/day03.txt");
 pub fn run() -> String {
-    format!("Part 1: {}\n", part1(INPUT)) + &format!("Part2: {}", part2(INPUT))
+    format!("Part 1: {}\n", part1(INPUT)) + &format!("Part 2: {}", part2(INPUT))
 }
 trait ToNum {
     fn num(&self) -> u32;

@@ -10,7 +10,7 @@ pub fn run() -> String {
     };
     let quad_tree = QuadTree::new(&points, range, range);
     format!(
-        "{}\n{}",
+        "Part 1: {}\nPart 2: {}",
         tree.count_empty(),
         quad_tree.find_tuning_frequency().unwrap()
     )

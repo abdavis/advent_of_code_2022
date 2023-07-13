@@ -1,7 +1,11 @@
 const INPUT: &str = include_str!("inputs/day05.txt");
 pub fn run() -> String {
     let (crates, instructions) = parse_input::<9>(INPUT);
-    part1(crates.clone(), &instructions) + "\n" + &part2(crates, &instructions)
+    format!(
+        "Part 1: {}\nPart 2: {}",
+        part1(crates.clone(), &instructions),
+        part2(crates, &instructions)
+    )
 }
 fn parse_input<const NUM_STACKS: usize>(
     input: &str,

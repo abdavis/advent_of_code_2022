@@ -31,7 +31,7 @@ pub fn run() -> String {
     let tree: FileSystem = INPUT.into();
 
     format!(
-        "{}\n{}",
+        "Part 1: {}\nPart 2: {}",
         tree.get_size_sum().1,
         tree.deleted_folder_size().1
     )

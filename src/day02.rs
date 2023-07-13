@@ -1,7 +1,7 @@
 const INPUT: &str = include_str!("inputs/day02.txt");
 
 pub fn run() -> String {
-    format!("Part one: {}\nPart two: {}", part1(INPUT), part2(INPUT))
+    format!("Part 1: {}\nPart 2: {}", part1(INPUT), part2(INPUT))
 }
 
 fn part1(input: &str) -> u32 {

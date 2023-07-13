@@ -1,6 +1,10 @@
 const INPUT: &str = include_str!("inputs/day06.txt");
 pub fn run() -> String {
-    format!("{}\n{}", both_parts(INPUT, 4), both_parts(INPUT, 14))
+    format!(
+        "Part 1: {}\nPart 2: {}",
+        both_parts(INPUT, 4),
+        both_parts(INPUT, 14)
+    )
 }
 fn both_parts(input: &str, length: usize) -> usize {
     input

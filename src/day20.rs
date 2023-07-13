@@ -7,7 +7,7 @@ pub fn run() -> String {
     input2.decrypt(811589153);
     input2.mix(10);
     format!(
-        "{}\n{}",
+        "Part 1: {}\nPart 2: {}",
         input.calc_coordinates(),
         input2.calc_coordinates()
     )

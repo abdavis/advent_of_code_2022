@@ -7,7 +7,7 @@ const INPUT: &str = include_str!("inputs/day17.txt");
 const EXAMPLE: &str = include_str!("example_inputs/day17.txt");
 pub fn run() -> String {
     format!(
-        "{}\n{}",
+        "Part 1: {}\nPart 2: {}",
         Chamber::default().get_height(
             Shape::iter().peekable(),
             Draft::iter(INPUT).peekable(),
