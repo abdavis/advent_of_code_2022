@@ -1,5 +1,3 @@
-use core::panic;
-
 pub fn run() -> String {
     let val = Instructions::from(INPUT.lines().last().unwrap());
     //    format!("{val:?}")
